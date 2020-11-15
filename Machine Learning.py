@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
+import csv
 
 
 def initialize_parameters(n_x, n_h, n_y):
@@ -75,13 +77,6 @@ def linear_forward(A, W, b):
     assert (Z.shape == (W.shape[0], A.shape[1]))
     cache = (A, W, b)
     return Z, cache
-
-
-"""
-A, W, b = linear_forward_test_case()
-Z, linear_cache = linear_forward(A, W, b)
-print("Z = " + str(Z))
-"""
 
 
 def sigmoid(Z):
@@ -167,12 +162,12 @@ def L_model_forward(X, parameters):
         A, cache = linear_activation_forward(A_prev,
                                              parameters['W' + str(l)],
                                              parameters['b' + str(l)],
-                                             relu)
+                                             "relu")
         caches.append(cache)
     # Implement LINEAR -> SIGMOID. Add "cache" to the "caches" list.
     AL, cache = linear_activation_forward(A, parameters['W' + str(L)],
                                           parameters['b' + str(L)],
-                                          sigmoid)
+                                          "sigmoid")
     caches.append(cache)
     assert (AL.shape == (1, X.shape[1]))
     return AL, caches
@@ -193,8 +188,8 @@ def compute_cost(AL, Y):
     # Compute loss from aL and y.
     cost = -1 / m * np.sum(Y * np.log(AL) + (1 - Y) * np.log(1 - AL))
 
-    cost = np.squeeze(
-        cost)  # To make sure your cost's shape is what we expect
+    cost = np.squeeze(cost)
+    # To make sure your cost's shape is what we expect
     # (e.g. this turns [[17]] into 17).
     assert (cost.shape == ())
 
@@ -388,32 +383,89 @@ def L_layer_model(X, Y, layers_dims, learning_rate=0.0075,
         if print_cost and i % 100 == 0:
             costs.append(cost)
     # plot the cost
+    """
     plt.plot(np.squeeze(costs))
     plt.ylabel('cost')
     plt.xlabel('iterations (per hundreds)')
     plt.title("Learning rate =" + str(learning_rate))
     plt.show()
+    """
     return parameters
 
 
-def predict(parameters, X):
+def predict(X, y, parameters):
     """
-    Using the learned parameters, predicts a class for each example in X
+    This function is used to predict the results of a  L-layer neural network.
 
     Arguments:
-    parameters -- python dictionary containing your parameters
-    X -- input data of size (n_x, m)
+    X -- data set of examples you would like to label
+    parameters -- parameters of the trained model
 
-    Returns
-    predictions -- vector of predictions of our model (red: 0 / blue: 1)
+    Returns:
+    p -- predictions for the given dataset X
     """
-    # Computes probabilities using forward propagation,
-    # and classifies to 0/1 using 0.5 as the threshold.
-    probabilities, cache = L_model_forward(X, parameters)
-    for i in range(probabilities.shape[1]):
-        if probabilities[0][i] < 0.5:
-            probabilities[0][i] = 0
+
+    m = X.shape[1]
+    n = len(parameters) // 2  # number of layers in the neural network
+    p = np.zeros((1, m))
+
+    # Forward propagation
+    probas, caches = L_model_forward(X, parameters)
+    print('probas=',probas)
+    # convert probas to 0/1 predictions
+    for i in range(0, probas.shape[1]):
+        if probas[0, i] > 0.5:
+            p[0, i] = 1
         else:
-            probabilities[0][i] = 1
-    predictions = probabilities
-    return predictions
+            p[0, i] = 0
+
+    # print results
+    #print("predictions: " + str(p))
+    #print("true labels: " + str(y))
+    print("Accuracy: " + str(np.sum((p == y) / m)))
+    return p
+
+#constant=5
+#X_train = [[0] * 5, [0] * 5]
+train_x = [[0] * 16, [0] * 16]
+train_y = [[0]*16]
+#form1 = [[0]*16]
+#form2 = [[0]*16]
+FILENAME = "Training examples.csv"
+with open(FILENAME, "r", newline="") as file:
+    reader = csv.reader(file)
+    i = 0
+    for row in reader:
+        train_x[0][i], train_x[1][i] = float(row[0])/100, float(row[1])/100
+        train_y[0][i] = float(row[2])
+        i += 1
+        """
+        form1[0][i] = float(row[2])
+        #form2[0][i] = float(row[2])
+        """
+train_x = np.array(train_x)
+train_y = np.array(train_y)
+print(train_x)
+print(train_y)
+"""
+for i in range(16):
+    if train_y[0][i] == 0:
+        form1[0][i] = train_x[1][i]
+    else:
+        form2[0][i] = train_x[1][i]
+plt.plot(train_x[0], form1[0], "ro")
+plt.scatter(train_x[0], form2[0])
+plt.show()
+"""
+layers_dims = [2, 5, 7, 3, 1]
+parameters = L_layer_model(train_x, train_y, layers_dims,
+                           num_iterations=2500,
+                           learning_rate=0.0004, print_cost=True)
+predict_train = predict(train_x, train_y, parameters)
+print(predict_train)
+"""
+X_test = pd.read_csv("Test examples.csv")
+test_x = X_test[0]
+test_y = X_test[1]
+predict_test = predict(parameters, X_test)
+"""
