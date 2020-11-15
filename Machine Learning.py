@@ -4,36 +4,6 @@ import pandas as pd
 import csv
 
 
-def initialize_parameters(n_x, n_h, n_y):
-    """
-    Argument:
-    n_x -- size of the input layer
-    n_h -- size of the hidden layer
-    n_y -- size of the output layer
-
-    Returns:
-    parameters -- python dictionary containing your parameters:
-                    W1 -- weight matrix of shape (n_h, n_x)
-                    b1 -- bias vector of shape (n_h, 1)
-                    W2 -- weight matrix of shape (n_y, n_h)
-                    b2 -- bias vector of shape (n_y, 1)
-    """
-    W1 = np.random.randn(n_h, n_x) * 0.01
-    b1 = np.zeros((n_h, 1))
-    W2 = np.random.randn(n_y, n_h) * 0.01
-    b2 = np.zeros((n_y, 1))
-    assert (W1.shape == (n_h, n_x))
-    assert (b1.shape == (n_h, 1))
-    assert (W2.shape == (n_y, n_h))
-    assert (b2.shape == (n_y, 1))
-    parameters = {"W1": W1,
-                  "b1": b1,
-                  "W2": W2,
-                  "b2": b2}
-
-    return parameters
-
-
 def initialize_parameters_deep(layer_dims):
     """
     Arguments:
@@ -106,7 +76,6 @@ def relu(Z):
     A = np.maximum(0, Z)
     cache = Z
     return A, cache
-
 
 def linear_activation_forward(A_prev, W, b, activation):
     """
@@ -411,7 +380,7 @@ def predict(X, y, parameters):
 
     # Forward propagation
     probas, caches = L_model_forward(X, parameters)
-    print('probas=',probas)
+    print('probas=', probas)
     # convert probas to 0/1 predictions
     for i in range(0, probas.shape[1]):
         if probas[0, i] > 0.5:
@@ -420,23 +389,25 @@ def predict(X, y, parameters):
             p[0, i] = 0
 
     # print results
-    #print("predictions: " + str(p))
-    #print("true labels: " + str(y))
+    # print("predictions: " + str(p))
+    # print("true labels: " + str(y))
     print("Accuracy: " + str(np.sum((p == y) / m)))
     return p
 
-#constant=5
-#X_train = [[0] * 5, [0] * 5]
+
+# constant=5
+# X_train = [[0] * 5, [0] * 5]
 train_x = [[0] * 16, [0] * 16]
-train_y = [[0]*16]
-#form1 = [[0]*16]
-#form2 = [[0]*16]
+train_y = [[0] * 16]
+# form1 = [[0]*16]
+# form2 = [[0]*16]
 FILENAME = "Training examples.csv"
 with open(FILENAME, "r", newline="") as file:
     reader = csv.reader(file)
     i = 0
     for row in reader:
-        train_x[0][i], train_x[1][i] = float(row[0])/100, float(row[1])/100
+        train_x[0][i], train_x[1][i] = float(row[0]) / 100, float(
+            row[1]) / 100
         train_y[0][i] = float(row[2])
         i += 1
         """
@@ -445,8 +416,10 @@ with open(FILENAME, "r", newline="") as file:
         """
 train_x = np.array(train_x)
 train_y = np.array(train_y)
+"""
 print(train_x)
 print(train_y)
+"""
 """
 for i in range(16):
     if train_y[0][i] == 0:
@@ -457,10 +430,10 @@ plt.plot(train_x[0], form1[0], "ro")
 plt.scatter(train_x[0], form2[0])
 plt.show()
 """
-layers_dims = [2, 5, 7, 3, 1]
+layers_dims = [2, 50, 35, 1]
 parameters = L_layer_model(train_x, train_y, layers_dims,
-                           num_iterations=2500,
-                           learning_rate=0.0004, print_cost=True)
+                           num_iterations=27000,
+                           learning_rate=0.15, print_cost=True)
 predict_train = predict(train_x, train_y, parameters)
 print(predict_train)
 """
@@ -469,3 +442,7 @@ test_x = X_test[0]
 test_y = X_test[1]
 predict_test = predict(parameters, X_test)
 """
+"""
+[[0.4962095  0.49620959 0.49620926 0.49620956 0.49620919 0.49620939
+  0.49620932 0.49620946 0.49620929 0.49620962 0.49620934 0.49620923
+  0.49620918 0.49620952 0.49620941 0.49620928]]"""
