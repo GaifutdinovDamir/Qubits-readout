@@ -22,9 +22,6 @@ def initialize_parameters_deep(layer_dims):
                                                    layer_dims[
                                                        l - 1]) * 0.01
         parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
-        assert (parameters['W' + str(l)].shape == (
-            layer_dims[l], layer_dims[l - 1]))
-        assert (parameters['b' + str(l)].shape == (layer_dims[l], 1))
     return parameters
 
 
@@ -44,7 +41,6 @@ def linear_forward(A, W, b):
     computing the backward pass efficiently
     """
     Z = np.dot(W, A) + b
-    assert (Z.shape == (W.shape[0], A.shape[1]))
     cache = (A, W, b)
     return Z, cache
 
@@ -77,6 +73,7 @@ def relu(Z):
     cache = Z
     return A, cache
 
+
 def linear_activation_forward(A_prev, W, b, activation):
     """
     Implement the forward propagation for the LINEAR->ACTIVATION layer
@@ -96,14 +93,11 @@ def linear_activation_forward(A_prev, W, b, activation):
     stored for computing the backward pass efficiently
     """
     if activation == "sigmoid":
-        # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = sigmoid(Z)
     else:
-        # Inputs: "A_prev, W, b". Outputs: "A, activation_cache".
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = relu(Z)
-    assert (A.shape == (W.shape[0], A_prev.shape[1]))
     cache = (linear_cache, activation_cache)
 
     return A, cache
@@ -138,7 +132,6 @@ def L_model_forward(X, parameters):
                                           parameters['b' + str(L)],
                                           "sigmoid")
     caches.append(cache)
-    assert (AL.shape == (1, X.shape[1]))
     return AL, caches
 
 
@@ -148,20 +141,15 @@ def compute_cost(AL, Y):
     Arguments:
     AL -- probability vector corresponding to your label predictions,
     shape (1, number of examples)
-    Y -- true "label" vector (for example: containing 0 if non-cat,
-    1 if cat), shape (1, number of examples)
+    Y -- true "label" vector (for example: containing 0 if |0>,
+    1 if |1>), shape (1, number of examples)
     Returns:
     cost -- cross-entropy cost
     """
     m = Y.shape[1]
-    # Compute loss from aL and y.
+    # Compute loss from AL and y.
     cost = -1 / m * np.sum(Y * np.log(AL) + (1 - Y) * np.log(1 - AL))
-
     cost = np.squeeze(cost)
-    # To make sure your cost's shape is what we expect
-    # (e.g. this turns [[17]] into 17).
-    assert (cost.shape == ())
-
     return cost
 
 
@@ -187,11 +175,6 @@ def linear_backward(dZ, cache):
     dW = 1 / m * np.dot(dZ, A_prev.T)
     db = 1 / m * np.sum(dZ, axis=1, keepdims=True)
     dA_prev = np.dot(W.T, dZ)
-
-    assert (dA_prev.shape == A_prev.shape)
-    assert (dW.shape == W.shape)
-    assert (db.shape == b.shape)
-
     return dA_prev, dW, db
 
 
@@ -266,20 +249,14 @@ def L_model_backward(AL, Y, caches):
     Y = Y.reshape(AL.shape)
     # Initializing the backpropagation
     dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
-    # Lth layer (SIGMOID -> LINEAR) gradients. Inputs: "dAL,
-    # current_cache". Outputs: "grads["dAL-1"], grads["dWL"],
-    # grads["dbL"]
+    # Lth layer (SIGMOID -> LINEAR) gradients.
     current_cache = caches[L - 1]
     grads["dA" + str(L - 1)], grads["dW" + str(L)], grads[
         "db" + str(L)] = linear_activation_backward(dAL, current_cache,
                                                     "sigmoid")
-
     # Loop from l=L-2 to l=0
     for l in reversed(range(L - 1)):
         # lth layer: (RELU -> LINEAR) gradients.
-        # Inputs: "grads["dA" + str(l + 1)], current_cache".
-        # Outputs: "grads["dA" + str(l)] , grads["dW" + str(l + 1)] ,
-        # grads["db" + str(l + 1)]
         current_cache = caches[l]
         dA_prev_temp, dW_temp, db_temp = linear_activation_backward(
             grads["dA" + str(l + 1)], current_cache, "relu")
@@ -303,7 +280,7 @@ def update_parameters(parameters, grads, learning_rate):
                   parameters["b" + str(l)] = ...
     """
     L = len(parameters) // 2  # number of layers in the neural network
-    # Update rule for each parameter. Use a for loop.
+    # Update rule for each parameter.
     for l in range(L):
         parameters["W" + str(l + 1)] -= grads["dW" + str(
             l + 1)] * learning_rate
@@ -314,14 +291,13 @@ def update_parameters(parameters, grads, learning_rate):
 
 def L_layer_model(X, Y, layers_dims, learning_rate=0.0075,
                   num_iterations=3000,
-                  print_cost=False):  # lr was 0.009
+                  print_cost=False):
     """
     Implements a L-layer neural network: [LINEAR->RELU]*(L-1)->LINEAR->
     SIGMOID.
     Arguments:
-    X -- data, numpy array of shape (num_px * num_px * 3,
-    number of examples)
-    Y -- true "label" vector (containing 0 if cat, 1 if non-cat),
+    X -- data, numpy array of shape (2, number of examples)
+    Y -- true "label" vector (containing 0 if |0>, 1 if |1>),
     of shape (1, number of examples)
     layers_dims -- list containing the input size and each layer size,
     of length (number of layers + 1).
@@ -333,9 +309,8 @@ def L_layer_model(X, Y, layers_dims, learning_rate=0.0075,
     They can then be used to predict.
     """
     costs = []  # keep track of cost
-    # Parameters initialization. (≈ 1 line of code)
     parameters = initialize_parameters_deep(layers_dims)
-    # Loop (gradient descent)
+    # gradient descent
     for i in range(0, num_iterations):
         # Forward propagation: [LINEAR -> RELU]*(L-1) ->
         # LINEAR -> SIGMOID.
@@ -373,76 +348,69 @@ def predict(X, y, parameters):
     Returns:
     p -- predictions for the given dataset X
     """
-
     m = X.shape[1]
-    n = len(parameters) // 2  # number of layers in the neural network
     p = np.zeros((1, m))
-
     # Forward propagation
-    probas, caches = L_model_forward(X, parameters)
-    print('probas=', probas)
-    # convert probas to 0/1 predictions
-    for i in range(0, probas.shape[1]):
-        if probas[0, i] > 0.5:
+    probabilities, caches = L_model_forward(X, parameters)
+    # convert probabilities to 0/1 predictions
+    for i in range(0, probabilities.shape[1]):
+        if probabilities[0, i] > 0.5:
             p[0, i] = 1
         else:
             p[0, i] = 0
 
-    # print results
-    # print("predictions: " + str(p))
-    # print("true labels: " + str(y))
     print("Accuracy: " + str(np.sum((p == y) / m)))
     return p
 
 
-# constant=5
-# X_train = [[0] * 5, [0] * 5]
-train_x = [[0] * 16, [0] * 16]
-train_y = [[0] * 16]
-# form1 = [[0]*16]
-# form2 = [[0]*16]
-FILENAME = "Training examples.csv"
+constant_train = 16140
+train_x = [[0] * constant_train, [0] * constant_train]
+train_y = [[0] * constant_train]
+FILENAME = "Training examples_test.csv"
 with open(FILENAME, "r", newline="") as file:
     reader = csv.reader(file)
     i = 0
     for row in reader:
-        train_x[0][i], train_x[1][i] = float(row[0]) / 100, float(
-            row[1]) / 100
+        train_x[0][i] = float(row[0])
+        train_x[1][i] = float(row[1])
         train_y[0][i] = float(row[2])
         i += 1
-        """
-        form1[0][i] = float(row[2])
-        #form2[0][i] = float(row[2])
-        """
 train_x = np.array(train_x)
 train_y = np.array(train_y)
 """
-print(train_x)
-print(train_y)
-"""
-"""
-for i in range(16):
+form1 = train_y
+form2 = train_y
+for i in range(constant_train):
     if train_y[0][i] == 0:
         form1[0][i] = train_x[1][i]
     else:
         form2[0][i] = train_x[1][i]
-plt.plot(train_x[0], form1[0], "ro")
-plt.scatter(train_x[0], form2[0])
+plt.plot(train_x[0], form1[0])
+plt.show()
+plt.plot(train_x[0], form2[0])
 plt.show()
 """
-layers_dims = [2, 50, 35, 1]
+# Setting the number of neurons in each layer
+layers_dims = [2, 4, 1]
 parameters = L_layer_model(train_x, train_y, layers_dims,
-                           num_iterations=27000,
-                           learning_rate=0.15, print_cost=True)
+                           num_iterations=5000,
+                           learning_rate=0.7, print_cost=True)
+print("Training examples:")
 predict_train = predict(train_x, train_y, parameters)
-print(predict_train)
-"""
-X_test = pd.read_csv("Test examples.csv")
-test_x = X_test[0]
-test_y = X_test[1]
-predict_test = predict(parameters, X_test)
-"""
-"""
-[[0.4962095  0.49620959 0.49620926 0.49620956 0.49620919 0.49620939
-  0.49620932 0.49620946 0.49620929 0.49620962 0.49620934 0.49620923
-  0.49620918 0.49620952 0.49620941 0.49620928]]"""
+# Test
+constant_test = 50
+test_x = [[0] * constant_test, [0] * constant_test]
+test_y = [[0] * constant_test]
+FILENAME = "Test examples_test.csv"
+with open(FILENAME, "r") as file:
+    reader = csv.reader(file)
+    i = 0
+    for row in reader:
+        test_x[0][i] = float(row[0])
+        test_x[1][i] = float(row[1])
+        test_y[0][i] = float(row[2])
+        i += 1
+test_x = np.array(test_x)
+test_y = np.array(test_y)
+print("Test examples:")
+predict_test = predict(test_x, test_y, parameters)
