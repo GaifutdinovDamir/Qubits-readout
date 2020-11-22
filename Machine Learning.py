@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 import csv
 
 
@@ -363,7 +362,7 @@ def predict(X, y, parameters):
     return p
 
 
-constant_train = 16140
+constant_train = 15940
 train_x = [[0] * constant_train, [0] * constant_train]
 train_y = [[0] * constant_train]
 FILENAME = "Training examples_test.csv"
@@ -371,34 +370,24 @@ with open(FILENAME, "r", newline="") as file:
     reader = csv.reader(file)
     i = 0
     for row in reader:
-        train_x[0][i] = float(row[0])
-        train_x[1][i] = float(row[1])
+        train_x[0][i] = float(row[0])/50
+        train_x[1][i] = float(row[1])/50
         train_y[0][i] = float(row[2])
         i += 1
 train_x = np.array(train_x)
 train_y = np.array(train_y)
-"""
-form1 = train_y
-form2 = train_y
-for i in range(constant_train):
-    if train_y[0][i] == 0:
-        form1[0][i] = train_x[1][i]
-    else:
-        form2[0][i] = train_x[1][i]
-plt.plot(train_x[0], form1[0])
-plt.show()
-plt.plot(train_x[0], form2[0])
-plt.show()
-"""
+
 # Setting the number of neurons in each layer
-layers_dims = [2, 4, 1]
+layers_dims = [2, 6, 3, 1]
 parameters = L_layer_model(train_x, train_y, layers_dims,
-                           num_iterations=5000,
-                           learning_rate=0.7, print_cost=True)
+                           num_iterations=10000,
+                           learning_rate=0.6, print_cost=True)
 print("Training examples:")
 predict_train = predict(train_x, train_y, parameters)
 # Test
-constant_test = 50
+
+
+constant_test = 250
 test_x = [[0] * constant_test, [0] * constant_test]
 test_y = [[0] * constant_test]
 FILENAME = "Test examples_test.csv"
@@ -414,3 +403,20 @@ test_x = np.array(test_x)
 test_y = np.array(test_y)
 print("Test examples:")
 predict_test = predict(test_x, test_y, parameters)
+"""
+real_zeros = []
+real_ones = []
+image_zeros = []
+image_ones = []
+for i in range(constant_train):
+    if train_y[0][i] == 0:
+        real_zeros.append(train_x[0][i])
+        image_zeros.append(train_x[1][i])
+    else:
+        real_ones.append(train_x[0][i])
+        image_ones.append(train_x[1][i])
+plt.plot(real_zeros, image_zeros, 'ro')
+plt.show()
+plt.plot(real_ones, image_ones, 'go')
+plt.show()
+"""
