@@ -378,7 +378,7 @@ train_x = np.array(train_x)
 train_y = np.array(train_y)
 
 # Setting the number of neurons in each layer
-layers_dims = [2, 6, 3, 1]
+layers_dims = [2, 6, 4, 1]
 parameters = L_layer_model(train_x, train_y, layers_dims,
                            num_iterations=10000,
                            learning_rate=0.6, print_cost=True)
@@ -403,7 +403,7 @@ test_x = np.array(test_x)
 test_y = np.array(test_y)
 print("Test examples:")
 predict_test = predict(test_x, test_y, parameters)
-"""
+
 real_zeros = []
 real_ones = []
 image_zeros = []
@@ -419,4 +419,6 @@ plt.plot(real_zeros, image_zeros, 'ro')
 plt.show()
 plt.plot(real_ones, image_ones, 'go')
 plt.show()
-"""
+plt.plot(real_zeros, image_zeros, 'ro')
+plt.plot(real_ones, image_ones, 'go')
+plt.show()
