@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import csv
-param=0
+
+param = 0
+
 
 def initialize_parameters_deep(layer_dims):
     """
@@ -19,7 +21,9 @@ def initialize_parameters_deep(layer_dims):
     L = len(layer_dims)  # number of layers in the network
     for l in range(1, L):
         parameters['W' + str(l)] = np.random.randn(layer_dims[l],
-                layer_dims[l - 1]) * 0.01 * np.sqrt(2 / layers_dims[l-1])
+                                                   layer_dims[
+                                                       l - 1]) * 0.035 * np.sqrt(
+            2 / layers_dims[l - 1])
         parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
     param = parameters
     return parameters
@@ -152,7 +156,7 @@ def compute_cost(AL, Y, parameters, lambd):
     k = 1 / m * lambd / 2
     L = len(parameters) // 2  # number of layers in the neural network
     for l in range(1, L):
-        cost = cost + k * np.sum(np.square(parameters['W'+str(l)]))
+        cost = cost + k * np.sum(np.square(parameters['W' + str(l)]))
     cost = np.squeeze(cost)
     return cost
 
@@ -376,10 +380,10 @@ def predict(X, y, parameters):
     return p
 
 
-constant_train = 72862
+constant_train = 87433
 train_x = [[0] * constant_train, [0] * constant_train]
 train_y = [[0] * constant_train]
-constant_test = 8096
+constant_test = 9715
 test_x = [[0] * constant_test, [0] * constant_test]
 test_y = [[0] * constant_test]
 FILENAME = "Training examples.csv"
@@ -388,16 +392,16 @@ with open(FILENAME, "r", newline="") as file:
     i = 0
     k = 0
     for row in reader:
-        if i % 10 == 0:
-            test_x[0][int(i/10)] = float(row[0])
-            test_x[1][int(i/10)] = float(row[1])
-            test_y[0][int(i/10)] = float(row[2])
+        if i % 10 == 0 and i < 97148:
+            test_x[0][int(i / 10)] = float(row[0])
+            test_x[1][int(i / 10)] = float(row[1])
+            test_y[0][int(i / 10)] = float(row[2])
             i += 1
             k += 1
-        else:
-            train_x[0][i-k] = float(row[0])
-            train_x[1][i-k] = float(row[1])
-            train_y[0][i-k] = float(row[2])
+        elif i < 97148:
+            train_x[0][i - k] = float(row[0])
+            train_x[1][i - k] = float(row[1])
+            train_y[0][i - k] = float(row[2])
             i += 1
 # Normalization of training data
 mu0 = 0
@@ -435,23 +439,16 @@ train_x = np.array(train_x)
 train_y = np.array(train_y)
 
 # Setting the number of neurons in each layer
-layers_dims = [2, 3, 5, 4, 1]
-
+layers_dims = [2, 6, 4, 1]
+#0.2342359872088747 0.35 0.55
 parameters = L_layer_model(train_x, train_y, layers_dims,
-                           num_iterations=5000, learning_rate=1,
+                           num_iterations=10000, learning_rate=0.01,
                            print_cost=True, lambd=0)
-parameters = L_layer_model(train_x, train_y, layers_dims,
-                           num_iterations=5000, learning_rate=0.7,
-                           print_cost=True, lambd=0, rate="continue")
-
-
 print("Training examples:")
 predict_train = predict(train_x, train_y, parameters)
 # Test
-
 print("Test examples:")
 predict_test = predict(test_x, test_y, parameters)
-
 """
 real_zeros = []
 real_ones = []
