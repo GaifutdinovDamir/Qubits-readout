@@ -22,7 +22,7 @@ def initialize_parameters_deep(layer_dims):
     for l in range(1, L):
         parameters['W' + str(l)] = np.random.randn(layer_dims[l],
                                                    layer_dims[
-                                                       l - 1]) * 0.035 * np.sqrt(
+                                                       l - 1]) * 0.01 * np.sqrt(
             2 / layers_dims[l - 1])
         parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
     param = parameters
@@ -152,7 +152,7 @@ def compute_cost(AL, Y, parameters, lambd):
     """
     m = Y.shape[1]
     # Compute loss from AL and y.
-    cost = -1 / m * np.sum(Y * np.log(AL) + (1 - Y) * np.log(1 - AL))
+    cost = -1 / m * np.sum(Y * np.log(AL + 10 ** (-10)) + (1 - Y) * np.log(1 + 10 ** (-10) - AL))
     k = 1 / m * lambd / 2
     L = len(parameters) // 2  # number of layers in the neural network
     for l in range(1, L):
@@ -256,7 +256,7 @@ def L_model_backward(AL, Y, caches, lambd):
     # after this line, Y is the same shape as AL
     Y = Y.reshape(AL.shape)
     # Initializing the backpropagation
-    dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
+    dAL = - (np.divide(Y, AL + 10 ** (-10)) - np.divide(1 - Y, 1 + 10 ** (-10) - AL))
     # Lth layer (SIGMOID -> LINEAR) gradients.
     current_cache = caches[L - 1]
     grads["dA" + str(L - 1)], grads["dW" + str(L)], grads[
@@ -380,10 +380,10 @@ def predict(X, y, parameters):
     return p
 
 
-constant_train = 87433
+constant_train = 72862
 train_x = [[0] * constant_train, [0] * constant_train]
 train_y = [[0] * constant_train]
-constant_test = 9715
+constant_test = 8096
 test_x = [[0] * constant_test, [0] * constant_test]
 test_y = [[0] * constant_test]
 FILENAME = "Training examples.csv"
@@ -392,13 +392,13 @@ with open(FILENAME, "r", newline="") as file:
     i = 0
     k = 0
     for row in reader:
-        if i % 10 == 0 and i < 97148:
+        if i % 10 == 0 and i < 80958:
             test_x[0][int(i / 10)] = float(row[0])
             test_x[1][int(i / 10)] = float(row[1])
             test_y[0][int(i / 10)] = float(row[2])
             i += 1
             k += 1
-        elif i < 97148:
+        elif i < 80958:
             train_x[0][i - k] = float(row[0])
             train_x[1][i - k] = float(row[1])
             train_y[0][i - k] = float(row[2])
@@ -409,14 +409,14 @@ mu1 = 0
 sigma0 = 0
 sigma1 = 0
 # Normalization of test data
-"""
+
 for i in range(constant_train):
     mu0 += train_x[0][i]
     mu1 += train_x[1][i]
     sigma0 = train_x[0][i] ** 2
     sigma1 = train_x[1][i] ** 2
-mu0 = mu0/constant_train
-mu1 = mu1/constant_train
+mu0 = mu0 / constant_train
+mu1 = mu1 / constant_train
 sigma0 /= constant_train
 sigma1 /= constant_train
 for i in range(constant_train):
@@ -424,32 +424,32 @@ for i in range(constant_train):
     train_x[1][i] -= mu1
     train_x[0][i] = train_x[0][i] / sigma0 ** 0.5
     train_x[1][i] = train_x[1][i] / sigma1 ** 0.5
-
-
 for i in range(constant_test):
     test_x[0][i] -= mu0
     test_x[1][i] -= mu1
     test_x[0][i] = test_x[0][i] / sigma0 ** 0.5
     test_x[1][i] = test_x[1][i] / sigma1 ** 0.5
-"""
+
 test_x = np.array(test_x)
 test_y = np.array(test_y)
 
 train_x = np.array(train_x)
 train_y = np.array(train_y)
-
 # Setting the number of neurons in each layer
-layers_dims = [2, 6, 4, 1]
-#0.2342359872088747 0.35 0.55
+layers_dims = [2, 6, 1]
 parameters = L_layer_model(train_x, train_y, layers_dims,
-                           num_iterations=10000, learning_rate=0.01,
+                           num_iterations=45000, learning_rate=0.01,
                            print_cost=True, lambd=0)
+parameters = L_layer_model(train_x, train_y, layers_dims,
+                           num_iterations=30000, learning_rate=0.001,
+                           print_cost=True, lambd=0, rate="continue")
+
 print("Training examples:")
 predict_train = predict(train_x, train_y, parameters)
 # Test
 print("Test examples:")
 predict_test = predict(test_x, test_y, parameters)
-"""
+
 real_zeros = []
 real_ones = []
 image_zeros = []
@@ -468,4 +468,4 @@ plt.show()
 plt.plot(real_zeros, image_zeros, 'ro')
 plt.plot(real_ones, image_ones, 'go')
 plt.show()
-"""
+
