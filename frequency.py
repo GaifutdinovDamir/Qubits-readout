@@ -163,3 +163,4 @@ print(f"We've updated our qubit frequency estimate from "
 # в первую строку файла запишем rough_frequency
 with open("qubit_params.txt", mode="w") as f:
     f.write(rough_qubit_frequency)
+
