@@ -5,6 +5,7 @@ from qiskit.pulse import Play
 from qiskit.pulse import pulse_lib  # This Pulse module helps us build sampled pulses for common pulse shapes
 from qiskit import assemble
 from qiskit.tools.monitor import job_monitor
+from qiskit.providers.ibmq import least_busy
 
 
 """
@@ -14,7 +15,9 @@ from qiskit.tools.monitor import job_monitor
 
 IBMQ.load_account()
 provider = IBMQ.get_provider(hub='ibm-q', group='open', project='main')
-backend = provider.get_backend('ibmq_armonk')
+#backend = provider.get_backend('ibmq_armonk')
+backend = least_busy(provider.backends(filters = lambda x: not x.configuration().simulator
+                                                            and x.status().operational == True))
 backend_config = backend.configuration()
 assert backend_config.open_pulse, "Backend doesn't support Pulse"
 dt = backend_config.dt
