@@ -219,7 +219,7 @@ plt.show()
 
 fit_params, y_fit = fit_function(drive_amps,
                                  rabi_values,
-                                 lambda x, A, B, drive_period, phi: (A*np.cos(2*np.pi*x/drive_period - phi) + B),
+                                 lambda x, A, B, drive_period, phi: (A*np.cos(2.5*np.pi*x/drive_period - phi) + B),
                                  [3, 0.1, 0.5, 0])
 
 plt.scatter(drive_amps, rabi_values, color='black')
